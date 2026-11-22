@@ -21,21 +21,23 @@ frontend/yarn-error.log*
 frontend/.pnpm-debug.log*
 frontend/coverage/
 
-# ---------- .NET (backend) ----------
-backend/bin/
-backend/obj/
-backend/*.user
-backend/*.suo
-backend/.vs/
-backend/appsettings.Development.json
-backend/appsettings.Local.json
-backend/**/publish/
-backend/**/*.dll
-backend/**/*.pdb
+# ---------- .NET (Backend) ----------
+# Sin prefijo de carpeta y con **/ para que matchee a cualquier
+# profundidad (Backend/obj, Backend/Backend/obj, etc.)
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/.vs/
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/publish/
+**/*.dll
+**/*.pdb
 
 # .NET secrets / connection strings nunca al repo
-backend/**/secrets.json
-backend/**/*.env
+**/secrets.json
+**/*.env
 
 # ---------- Genérico / multiplataforma ----------
 .DS_Store

@@ -1,0 +1,15 @@
+﻿// Controllers/HealthController.cs
+using Microsoft.AspNetCore.Mvc;
+
+namespace Backend.Controllers;
+
+[ApiController]
+[Route("api/health")]
+public class HealthController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult Get()
+    {
+        return Ok(new { status = "ok", hora = DateTimeOffset.UtcNow });
+    }
+}
