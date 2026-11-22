@@ -1,0 +1,56 @@
+# ============================================================================
+# El Puente — .gitignore (monorepo: /frontend Next.js + /backend .NET)
+# ============================================================================
+
+# ---------- Node / Next.js (frontend) ----------
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.vercel/
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+frontend/coverage/
+
+# ---------- .NET (backend) ----------
+backend/bin/
+backend/obj/
+backend/*.user
+backend/*.suo
+backend/.vs/
+backend/appsettings.Development.json
+backend/appsettings.Local.json
+backend/**/publish/
+backend/**/*.dll
+backend/**/*.pdb
+
+# .NET secrets / connection strings nunca al repo
+backend/**/secrets.json
+backend/**/*.env
+
+# ---------- Genérico / multiplataforma ----------
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.bak
+
+# Editores
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.sln.docstates
+
+# ---------- SQL / credenciales ----------
+# Nunca commitear contraseñas reales de roles (app_user, etc.)
+**/connection-string.txt
+**/*.secrets.sql
