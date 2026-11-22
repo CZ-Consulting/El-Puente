@@ -2,28 +2,56 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// ---- Servicios base ----
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Swagger con soporte para pegar el JWT en el botón "Authorize" (si no,
+// no se puede probar ningún endpoint con [Authorize] desde Swagger UI).
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "Pegá acá el token tal cual, SIN la palabra 'Bearer' adelante.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// ---- Base de datos (Supabase/Postgres vía Npgsql) ----
 builder.Services.AddDbContext<Backend.Data.AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Supabase") ?? builder.Configuration["Supabase:ConnectionString"])
+    options.UseNpgsql(builder.Configuration["Supabase:ConnectionString"])
            .UseSnakeCaseNamingConvention());
 
+// ---- CORS ----
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        var origins = builder.Configuration.GetSection("Cors:Origins").GetChildren().Select(c => c.Value).Where(v => v != null).ToArray();
+        var origins = builder.Configuration.GetSection("Cors:Origins")
+            .GetChildren().Select(c => c.Value).Where(v => v != null).ToArray();
         policy.WithOrigins(origins!).AllowAnyHeader().AllowAnyMethod();
     });
 });
 
-
-builder.Services.AddScoped<Backend.Services.Interfaces.IAuthService, Backend.Services.Implementations.AuthService>();
-
+// ---- Autenticación JWT ----
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -40,17 +68,31 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer
         };
     });
 
+builder.Services.AddHttpContextAccessor();
+
+// ---- Servicios de negocio (Interfaz -> Implementación) ----
+builder.Services.AddScoped<Backend.Services.Interfaces.ICurrentUserService, Backend.Services.Implementations.CurrentUserService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IAuthService, Backend.Services.Implementations.AuthService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IComplejoService, Backend.Services.Implementations.ComplejoService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IUsuarioService, Backend.Services.Implementations.UsuarioService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.ITerrenoService, Backend.Services.Implementations.TerrenoService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.ITipoCanchaService, Backend.Services.Implementations.TipoCanchaService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IConfiguracionService, Backend.Services.Implementations.ConfiguracionService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IReservaService, Backend.Services.Implementations.ReservaService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IPagoServicioService, Backend.Services.Implementations.PagoServicioService>();
+builder.Services.AddScoped<Backend.Services.Interfaces.IReporteService, Backend.Services.Implementations.ReporteService>();
+
 var app = builder.Build();
 
+// ---- Pipeline (el orden acá importa) ----
 app.UseMiddleware<Backend.Middleware.ErrorHandlingMiddleware>();
 
 app.UseCors("FrontendPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<Backend.Middleware.TenantContextMiddleware>();
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -58,8 +100,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

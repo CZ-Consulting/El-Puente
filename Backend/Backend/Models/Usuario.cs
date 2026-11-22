@@ -26,4 +26,8 @@ public class Usuario
 
     public bool Activo { get; set; } = true;
     public DateTimeOffset CreadoEn { get; set; } = DateTimeOffset.UtcNow;
+
+    // Se actualiza en cada login exitoso (ver AuthService). Alimenta el
+    // dashboard de actividad/churn que ve el SuperAdmin.
+    public DateTimeOffset? UltimoLogin { get; set; }
 }
