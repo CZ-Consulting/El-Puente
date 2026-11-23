@@ -15,4 +15,14 @@ public interface IAuthService
 
     // Devuelve false si passwordActual no coincide con la guardada.
     Task<bool> CambiarPasswordAsync(Guid usuarioId, string passwordActual, string passwordNueva);
+
+    // "Olvidé mi contraseña": si el email existe y está activo, genera un
+    // token de un solo uso y le manda el link por mail. Si no existe, no
+    // hace nada -- pero el Controller responde igual en ambos casos (nunca
+    // confirmar si un email está registrado).
+    Task SolicitarResetPasswordAsync(string email);
+
+    // Valida el token (no usado, no vencido) y, si es válido, actualiza la
+    // contraseña y lo marca usado. Devuelve false si el token no es válido.
+    Task<bool> RestablecerPasswordAsync(string token, string passwordNueva);
 }

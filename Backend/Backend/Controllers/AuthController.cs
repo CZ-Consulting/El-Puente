@@ -60,4 +60,36 @@ public class AuthController : ControllerBase
 
         return NoContent();
     }
+
+    // Pública a propósito (nadie está logueado todavía en este punto del
+    // flujo). Responde siempre el mismo mensaje exista o no el email, para
+    // no confirmar qué emails están registrados -- mismo criterio que login.
+    [HttpPost("olvide-password")]
+    public async Task<IActionResult> OlvidePassword([FromBody] OlvidePasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Email))
+            return BadRequest(new { error = "El email es requerido." });
+
+        await _authService.SolicitarResetPasswordAsync(dto.Email);
+
+        return Ok(new { mensaje = "Si el email está registrado, te enviamos un link para restablecer tu contraseña." });
+    }
+
+    // También pública: quien la llama recién está por loguearse, demuestra
+    // identidad con el token que le llegó por mail, no con un JWT.
+    [HttpPost("restablecer-password")]
+    public async Task<IActionResult> RestablecerPassword([FromBody] RestablecerPasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Token) || string.IsNullOrWhiteSpace(dto.PasswordNueva))
+            return BadRequest(new { error = "Token y contraseña nueva son requeridos." });
+        if (dto.PasswordNueva.Length < 6)
+            return BadRequest(new { error = "La nueva contraseña debe tener al menos 6 caracteres." });
+
+        var ok = await _authService.RestablecerPasswordAsync(dto.Token, dto.PasswordNueva);
+
+        if (!ok)
+            return BadRequest(new { error = "El link no es válido o ya venció. Pedí uno nuevo." });
+
+        return NoContent();
+    }
 }

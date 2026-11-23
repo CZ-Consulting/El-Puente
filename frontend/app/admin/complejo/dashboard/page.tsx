@@ -178,32 +178,38 @@ export default function DashboardComplejoPage() {
               {cargando ? "Cargando..." : "Sin reservas confirmadas en este período."}
             </p>
           ) : (
-            <div className="scroll-x" style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {datos.porDia.map((d) => (
-                <div
-                  key={d.fecha}
-                  style={{
-                    flex: "1 0 18px",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
+                <div key={d.fecha}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <span style={{ fontSize: 15, fontWeight: 600 }}>
+                      {etiquetaDia(d.fecha, datos.porDia.length <= 7)}
+                    </span>
+                    <span className="font-display" style={{ fontSize: 17 }}>
+                      {formatoMoneda(d.total)}
+                    </span>
+                  </div>
+                  <div className="text-muted" style={{ fontSize: 12.5, marginTop: 1 }}>
+                    {d.cantidadReservas} {d.cantidadReservas === 1 ? "reserva" : "reservas"}
+                  </div>
                   <div
-                    title={`${d.fecha}: ${formatoMoneda(d.total)}`}
                     style={{
-                      width: "100%",
-                      background: "var(--accent-fill)",
-                      borderRadius: "6px 6px 0 0",
-                      height: `${Math.max(6, (d.total / maximoDia) * 100)}%`,
+                      marginTop: 6,
+                      height: 8,
+                      borderRadius: 4,
+                      background: "var(--bg)",
+                      overflow: "hidden",
                     }}
-                  />
-                  <span className="text-muted" style={{ fontSize: 10 }}>
-                    {etiquetaDia(d.fecha, datos.porDia.length <= 7)}
-                  </span>
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${(d.total / maximoDia) * 100}%`,
+                        background: "var(--accent-fill)",
+                        borderRadius: 4,
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

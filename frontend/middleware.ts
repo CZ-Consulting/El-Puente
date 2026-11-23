@@ -14,7 +14,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const TOKEN_COOKIE = "lp_token";
 
-const RUTAS_PUBLICAS = ["/login"];
+const RUTAS_PUBLICAS = ["/login", "/olvide-password", "/restablecer-password"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

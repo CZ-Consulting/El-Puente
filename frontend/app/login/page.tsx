@@ -8,6 +8,7 @@
 // directo a una pantalla protegida sin sesión.
 
 import { Suspense, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { ApiError } from "@/lib/api";
@@ -122,7 +123,7 @@ function LoginForm() {
           </div>
 
           {error && (
-            <p role="alert" style={{ color: "var(--warn)", fontSize: 14, margin: 0 }}>
+            <p role="alert" style={{ color: "var(--error)", fontSize: 14, margin: 0 }}>
               {error}
             </p>
           )}
@@ -130,6 +131,13 @@ function LoginForm() {
           <button type="submit" disabled={enviando} className="btn-primary" style={{ marginTop: 8 }}>
             {enviando ? "Ingresando..." : "Ingresar"}
           </button>
+
+          <Link
+            href="/olvide-password"
+            style={{ textAlign: "center", fontSize: 14.5, color: "var(--accent)", textDecoration: "none" }}
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </form>
       </div>
     </div>

@@ -80,6 +80,11 @@ builder.Services.AddHttpContextAccessor();
 // ---- Servicios de negocio (Interfaz -> Implementación) ----
 builder.Services.AddScoped<Backend.Services.Interfaces.ICurrentUserService, Backend.Services.Implementations.CurrentUserService>();
 builder.Services.AddScoped<Backend.Services.Interfaces.IAuthService, Backend.Services.Implementations.AuthService>();
+// "Olvidé mi contraseña" manda el link por mail vía SMTP -- ver
+// appsettings "Smtp:*" y "Frontend:BaseUrl". Sin Smtp:Host configurado,
+// SmtpEmailService solo loguea el link en la consola del backend (útil en
+// desarrollo local) en vez de tirar error.
+builder.Services.AddScoped<Backend.Services.Interfaces.IEmailService, Backend.Services.Implementations.SmtpEmailService>();
 builder.Services.AddScoped<Backend.Services.Interfaces.IComplejoService, Backend.Services.Implementations.ComplejoService>();
 builder.Services.AddScoped<Backend.Services.Interfaces.IUsuarioService, Backend.Services.Implementations.UsuarioService>();
 builder.Services.AddScoped<Backend.Services.Interfaces.ITerrenoService, Backend.Services.Implementations.TerrenoService>();
