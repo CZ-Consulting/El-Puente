@@ -85,6 +85,11 @@ export default function SuperAdminConfiguracionPage() {
   const [guardandoCasoNuevo, setGuardandoCasoNuevo] = useState(false);
   const [errorCasoNuevo, setErrorCasoNuevo] = useState<string | null>(null);
 
+  const [mostrarFormTerreno, setMostrarFormTerreno] = useState(false);
+  const [terrenoNombreNuevo, setTerrenoNombreNuevo] = useState("");
+  const [guardandoTerreno, setGuardandoTerreno] = useState(false);
+  const [errorTerreno, setErrorTerreno] = useState<string | null>(null);
+
   const cargarBase = useCallback(async () => {
     setCargando(true);
     setError(null);
@@ -236,6 +241,29 @@ export default function SuperAdminConfiguracionPage() {
     }
   }
 
+  async function crearTerreno() {
+    if (!terrenoNombreNuevo.trim() || !complejoId) {
+      setErrorTerreno("El nombre es requerido.");
+      return;
+    }
+    setGuardandoTerreno(true);
+    setErrorTerreno(null);
+    try {
+      const creado = await api.post<TerrenoListadoDto>("/api/terrenos", {
+        nombre: terrenoNombreNuevo.trim(),
+        complejoId,
+      });
+      setTerrenoNombreNuevo("");
+      setMostrarFormTerreno(false);
+      await cargarBase();
+      setTerrenoId(creado.id);
+    } catch (err) {
+      setErrorTerreno(err instanceof ApiError ? err.message : "No se pudo crear el terreno.");
+    } finally {
+      setGuardandoTerreno(false);
+    }
+  }
+
   function actualizarItemNuevoCaso(idx: number, campo: "tipoCanchaId" | "cantidad", valor: string) {
     setCasoItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [campo]: valor } : it)));
   }
@@ -282,7 +310,7 @@ export default function SuperAdminConfiguracionPage() {
         {complejoActual?.nombre ?? ""}
       </div>
 
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", margin: "10px 20px 0 20px", paddingBottom: 4 }}>
+      <div className="scroll-x" style={{ display: "flex", gap: 8, margin: "10px 20px 0 20px", paddingBottom: 4 }}>
         {complejos.map((c) => (
           <button
             key={c.id}
@@ -296,7 +324,7 @@ export default function SuperAdminConfiguracionPage() {
       </div>
 
       {terrenosDelComplejo.length > 1 && (
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", margin: "8px 20px 0 20px", paddingBottom: 4 }}>
+        <div className="scroll-x" style={{ display: "flex", gap: 8, margin: "8px 20px 0 20px", paddingBottom: 4 }}>
           {terrenosDelComplejo.map((t) => (
             <button
               key={t.id}
@@ -310,6 +338,33 @@ export default function SuperAdminConfiguracionPage() {
         </div>
       )}
 
+      {terrenosDelComplejo.length >= 1 && complejoId && (
+        <div style={{ margin: "8px 20px 0 20px" }}>
+          <button
+            type="button"
+            onClick={() => setMostrarFormTerreno((v) => !v)}
+            style={{ background: "none", border: "none", color: "var(--accent)", fontSize: 13.5, fontWeight: 600, cursor: "pointer", padding: 0 }}
+          >
+            + Otro terreno en este complejo
+          </button>
+          {mostrarFormTerreno && (
+            <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+              <label>Nombre del terreno</label>
+              <input
+                className="input"
+                value={terrenoNombreNuevo}
+                onChange={(e) => setTerrenoNombreNuevo(e.target.value)}
+                placeholder="Ej: Terreno 2"
+              />
+              {errorTerreno && <p style={{ color: "var(--warn)", fontSize: 13.5, margin: 0 }}>{errorTerreno}</p>}
+              <button type="button" className="btn-primary" disabled={guardandoTerreno} onClick={crearTerreno}>
+                {guardandoTerreno ? "Creando..." : "Crear terreno"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       <main className="app-main">
         {error && <p style={{ color: "var(--warn)" }}>{error}</p>}
 
@@ -319,7 +374,20 @@ export default function SuperAdminConfiguracionPage() {
         </p>
 
         {!terrenoId && !error && (
-          <p className="text-muted">Este complejo todavía no tiene un terreno creado.</p>
+          <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <p className="text-muted" style={{ margin: 0 }}>Este complejo todavía no tiene un terreno creado.</p>
+            <label>Nombre del terreno</label>
+            <input
+              className="input"
+              value={terrenoNombreNuevo}
+              onChange={(e) => setTerrenoNombreNuevo(e.target.value)}
+              placeholder="Ej: Terreno principal"
+            />
+            {errorTerreno && <p style={{ color: "var(--warn)", fontSize: 13.5, margin: 0 }}>{errorTerreno}</p>}
+            <button type="button" className="btn-primary" disabled={guardandoTerreno} onClick={crearTerreno}>
+              {guardandoTerreno ? "Creando..." : "Crear terreno"}
+            </button>
+          </div>
         )}
 
         {terrenoId && (

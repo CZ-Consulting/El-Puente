@@ -157,7 +157,18 @@ export default function VisualizadorOperativoPage() {
           <button
             aria-label="Horario anterior"
             onClick={() => moverVentana(-DURACION_VENTANA_HORAS)}
-            style={{ background: "var(--bg)", border: "none", borderRadius: 12, width: 44, height: 44, cursor: "pointer", color: "var(--ink)" }}
+            style={{
+              background: "var(--bg)",
+              border: "none",
+              borderRadius: 12,
+              width: 44,
+              height: 44,
+              cursor: "pointer",
+              color: "var(--ink)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <IconFlechaIzquierda />
           </button>
@@ -172,7 +183,18 @@ export default function VisualizadorOperativoPage() {
           <button
             aria-label="Horario siguiente"
             onClick={() => moverVentana(DURACION_VENTANA_HORAS)}
-            style={{ background: "var(--bg)", border: "none", borderRadius: 12, width: 44, height: 44, cursor: "pointer", color: "var(--ink)" }}
+            style={{
+              background: "var(--bg)",
+              border: "none",
+              borderRadius: 12,
+              width: 44,
+              height: 44,
+              cursor: "pointer",
+              color: "var(--ink)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <IconFlechaDerecha />
           </button>

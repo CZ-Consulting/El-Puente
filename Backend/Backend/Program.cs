@@ -55,6 +55,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        // Sin esto, ASP.NET Core remapea el claim "sub" del JWT a un nombre
+        // legado (ClaimTypes.NameIdentifier), así que
+        // User.FindFirst(JwtRegisteredClaimNames.Sub) nunca lo encuentra y
+        // CurrentUserService.UsuarioId cae silenciosamente en Guid.Empty.
+        // Eso rompe el FK de reserva.creado_por -> usuario(id).
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
         {
             ValidateIssuer = true,

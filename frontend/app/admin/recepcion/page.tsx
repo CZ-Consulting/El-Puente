@@ -3,10 +3,10 @@
 // app/admin/recepcion/page.tsx — réplica de Home.dc.html
 //
 // Igual al visualizador del Preparador, pero el Recepcionista además puede
-// tocar una reserva "OCUPADA" para cancelarla, y tiene el botón flotante
-// "Nueva reserva". Es deliberadamente similar al de Preparador (misma lógica
-// de ventana/polling) pero no se unificó en un componente porque las
-// interacciones divergen (acá sí hay cancelación).
+// cancelar una reserva "OCUPADA" con el botón rojo dentro de su tarjeta, y
+// tiene el botón flotante "Nueva reserva". Es deliberadamente similar al de
+// Preparador (misma lógica de ventana/polling) pero no se unificó en un
+// componente porque las interacciones divergen (acá sí hay cancelación).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -153,7 +153,7 @@ export default function HomeRecepcionPage() {
         nombre={usuario.nombre}
         subtitulo="Recepcionista"
         iniciales={iniciales(usuario.nombre)}
-        ayuda='Acá ves qué canchas están ocupadas o libres en el horario elegido. Tocá "Nueva reserva" para cargar un turno nuevo, o las flechas para mirar otros horarios. Tocá una reserva ocupada para cancelarla.'
+        ayuda='Acá ves qué canchas están ocupadas o libres en el horario elegido. Tocá "Nueva reserva" para cargar un turno nuevo, o las flechas para mirar otros horarios. Para cancelar una reserva ocupada, tocá el botón rojo "Cancelar reserva" dentro de su tarjeta.'
       />
 
       <main className="app-main">
@@ -173,7 +173,18 @@ export default function HomeRecepcionPage() {
           <button
             aria-label="Horario anterior"
             onClick={() => moverVentana(-DURACION_VENTANA_HORAS)}
-            style={{ background: "var(--bg)", border: "none", borderRadius: 12, width: 44, height: 44, cursor: "pointer", color: "var(--ink)" }}
+            style={{
+              background: "var(--bg)",
+              border: "none",
+              borderRadius: 12,
+              width: 44,
+              height: 44,
+              cursor: "pointer",
+              color: "var(--ink)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <IconFlechaIzquierda />
           </button>
@@ -188,14 +199,25 @@ export default function HomeRecepcionPage() {
           <button
             aria-label="Horario siguiente"
             onClick={() => moverVentana(DURACION_VENTANA_HORAS)}
-            style={{ background: "var(--bg)", border: "none", borderRadius: 12, width: 44, height: 44, cursor: "pointer", color: "var(--ink)" }}
+            style={{
+              background: "var(--bg)",
+              border: "none",
+              borderRadius: 12,
+              width: 44,
+              height: 44,
+              cursor: "pointer",
+              color: "var(--ink)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <IconFlechaDerecha />
           </button>
         </div>
 
         {error && (
-          <p role="alert" style={{ color: "var(--warn)", fontSize: 14 }}>
+          <p role="alert" style={{ color: "var(--error)", fontSize: 14 }}>
             {error}
           </p>
         )}
@@ -209,14 +231,7 @@ export default function HomeRecepcionPage() {
             )}
 
             {ocupadas.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => cancelarReserva(r)}
-                disabled={cancelando === r.id}
-                className="card-accent"
-                style={{ textAlign: "left", border: "none", width: "100%", cursor: "pointer" }}
-              >
+              <div key={r.id} className="card-accent">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                   <div>
                     <div style={{ fontSize: 13, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.04em" }}>
@@ -226,14 +241,24 @@ export default function HomeRecepcionPage() {
                       {r.clienteNombre || "Sin nombre"}
                     </div>
                   </div>
-                  <span className="pill pill-on-accent">
-                    {cancelando === r.id ? "CANCELANDO…" : "OCUPADA"}
-                  </span>
+                  <div style={{ textAlign: "right" }}>
+                    <span className="pill pill-on-accent">
+                      {cancelando === r.id ? "CANCELANDO…" : "OCUPADA"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => cancelarReserva(r)}
+                      disabled={cancelando === r.id}
+                      className="btn-cancelar-reserva"
+                    >
+                      Cancelar reserva
+                    </button>
+                  </div>
                 </div>
                 <div style={{ fontSize: 14, opacity: 0.9, marginTop: 8 }}>
-                  {horaCorta(r.horaInicio)} a {horaCorta(r.horaFin)} · Tocá para cancelar
+                  {horaCorta(r.horaInicio)} a {horaCorta(r.horaFin)}
                 </div>
-              </button>
+              </div>
             ))}
 
             {disponibles.map((d) => (

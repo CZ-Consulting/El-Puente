@@ -182,7 +182,7 @@ export default function ComplejoDetallePage() {
         ayuda="Gestioná los usuarios de este complejo (alta, baja o cambio de rol) y registrá si pagó la mensualidad del servicio."
       />
 
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", margin: "0 20px 8px 20px", paddingBottom: 4 }}>
+      <div className="scroll-x" style={{ display: "flex", gap: 8, margin: "0 20px 8px 20px", paddingBottom: 4 }}>
         {complejos.map((c) => (
           <button
             key={c.id}

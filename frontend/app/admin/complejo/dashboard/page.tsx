@@ -105,7 +105,7 @@ export default function DashboardComplejoPage() {
       />
 
       <main className="app-main">
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+        <div className="scroll-x" style={{ display: "flex", gap: 8, paddingBottom: 4 }}>
           {chips.map((c) => (
             <button
               key={c.id}
@@ -160,7 +160,7 @@ export default function DashboardComplejoPage() {
               {cargando ? "Cargando..." : "Sin reservas confirmadas en este período."}
             </p>
           ) : (
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130, overflowX: "auto" }}>
+            <div className="scroll-x" style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 130 }}>
               {datos.porDia.map((d) => (
                 <div key={d.fecha} style={{ flex: "1 0 18px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                   <div

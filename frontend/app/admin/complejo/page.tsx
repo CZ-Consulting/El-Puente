@@ -97,6 +97,17 @@ export default function HomeAdminComplejoPage() {
               </span>
             </div>
           </Link>
+          <Link href="/admin/recepcion/nueva" style={{ textDecoration: "none" }}>
+            <div
+              className="card"
+              style={{ padding: 17, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            >
+              <span style={{ fontWeight: 600, fontSize: 15.5, color: "var(--ink)" }}>Cargar nueva reserva</span>
+              <span className="text-muted">
+                <IconFlechaDerecha />
+              </span>
+            </div>
+          </Link>
           <Link href="/admin/complejo/dashboard" style={{ textDecoration: "none" }}>
             <div
               className="card"

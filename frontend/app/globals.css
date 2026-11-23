@@ -18,12 +18,23 @@
   --ok-soft: #d6eccb;
   --warn: #b8502b;
   --warn-soft: #f6dfc9;
+  /* Rojo dedicado para errores de validación/formulario. --warn (la
+     terracota del badge "ATRASADO") es un color de estado de negocio, no
+     de error, y sobre el verde oscuro se confunde con el --accent
+     naranja de los botones activos — por eso un rojo aparte, para que un
+     mensaje de error se lea inequívocamente como error. */
+  --error: #e5484d;
+  --error-soft: #f6d3d3;
   --disabled: #0c2e22;
   --on-accent: #ffffff;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
@@ -62,7 +73,14 @@ button {
  * fondo. Todas las pantallas protegidas usan esta cáscara.
  * ------------------------------------------------------------------- */
 .app-shell {
+  /* 100vh en mobile no contempla la barra de direcciones dinámica del
+     navegador (se "recorta" al achicarse/agrandarse al hacer scroll), lo
+     que deja un resto de fondo del body (o del propio contenido rebotando
+     en iOS) asomando debajo del shell. 100dvh sigue el alto real visible;
+     dejamos 100vh antes como fallback para navegadores que no soportan
+     unidades dinámicas. */
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
@@ -131,6 +149,11 @@ button {
   color: var(--warn);
 }
 
+.pill-error {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
 .pill-on-accent {
   background: rgba(255, 255, 255, 0.2);
   color: var(--on-accent);
@@ -187,6 +210,25 @@ button {
 }
 
 .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancelar-reserva {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #fff;
+  background: var(--error);
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.btn-cancelar-reserva:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -280,7 +322,11 @@ label {
   background: var(--card);
   border-top: 1.5px solid var(--border);
   display: flex;
-  padding: 12px 8px 18px 8px;
+  /* env(safe-area-inset-bottom) suma el alto de la barra de gestos/home de
+     iOS y Android para que el nav no quede "comido" por ella; en
+     navegadores que no la soportan, env() devuelve 0 y queda el padding
+     fijo de siempre. */
+  padding: 12px 8px calc(18px + env(safe-area-inset-bottom)) 8px;
 }
 
 .nav-item {

@@ -56,6 +56,10 @@ export default function NuevaReservaPage() {
   const [senaMetodo, setSenaMetodo] = useState<Metodo>("efectivo");
 
   const [cargandoDisponibilidad, setCargandoDisponibilidad] = useState(false);
+  // Distingue "la consulta falló" (no bloqueamos nada, el POST final vuelve a
+  // validar) de "la consulta funcionó y no hay ningún caso vigente" (ahí sí
+  // hay que mostrar todo como no disponible, aunque la lista venga vacía).
+  const [errorDisponibilidad, setErrorDisponibilidad] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,9 +84,11 @@ export default function NuevaReservaPage() {
         horaFin: `${horaFin}:00`,
       });
       setDisponibilidad(data);
+      setErrorDisponibilidad(false);
     } catch {
       // Si falla la consulta de disponibilidad, no bloqueamos el formulario:
       // el POST final vuelve a validar igual contra el estado real.
+      setErrorDisponibilidad(true);
     } finally {
       setCargandoDisponibilidad(false);
     }
@@ -104,6 +110,22 @@ export default function NuevaReservaPage() {
     const diff = hf * 60 + mf - (hi * 60 + mi);
     return diff > 0 ? diff / 60 : 0;
   }, [horaInicio, horaFin]);
+
+  // "Desde" siempre empuja "Hasta" a una hora después, y "Hasta" nunca se
+  // deja fijar en una hora igual o anterior a "Desde" (se lo clampea a
+  // Desde+1h en vez de aceptar el valor inválido).
+  function cambiarHoraInicio(valor: string) {
+    setHoraInicio(valor);
+    setHoraFin(sumarHoras(fecha, valor, 1).hora);
+  }
+
+  function cambiarHoraFin(valor: string) {
+    if (valor <= horaInicio) {
+      setHoraFin(sumarHoras(fecha, horaInicio, 1).hora);
+      return;
+    }
+    setHoraFin(valor);
+  }
 
   const tipoSeleccionado = tipos.find((t) => t.id === tipoCanchaId);
   const precioEstimado = tipoSeleccionado ? tipoSeleccionado.precioPorHora * horas : 0;
@@ -152,7 +174,7 @@ export default function NuevaReservaPage() {
       <SectionHeader
         titulo="Nueva reserva"
         backHref="/admin/recepcion"
-        ayuda='Elegí fecha, horario y tipo de cancha. Las opciones grisadas no entran porque ya hay otra cancha reservada en ese horario. Si el cliente adelantó plata, activá la seña y cargá el monto.'
+        ayuda='Elegí fecha y horario: abajo vas a ver al toque qué tipos de cancha están disponibles, antes de cargar ningún dato del cliente. Si el cliente solo está preguntando, con eso ya le podés confirmar. Para cargar la reserva, elegí el tipo de cancha disponible y completá los datos.'
       />
 
       <form onSubmit={handleSubmit} className="app-main" style={{ paddingBottom: 110 }}>
@@ -190,7 +212,7 @@ export default function NuevaReservaPage() {
               type="time"
               className="input"
               value={horaInicio}
-              onChange={(e) => setHoraInicio(e.target.value)}
+              onChange={(e) => cambiarHoraInicio(e.target.value)}
             />
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
@@ -200,19 +222,42 @@ export default function NuevaReservaPage() {
               type="time"
               className="input"
               value={horaFin}
-              onChange={(e) => setHoraFin(e.target.value)}
+              onChange={(e) => cambiarHoraFin(e.target.value)}
+              min={sumarHoras(fecha, horaInicio, 1).hora}
             />
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <span style={{ fontSize: 15, fontWeight: 600 }}>
-            Tipo de cancha {cargandoDisponibilidad && <span className="text-muted">(actualizando...)</span>}
+        {/* Disponibilidad en vivo para el horario elegido, ANTES de elegir tipo
+            de cancha y de cargar los datos del cliente. Así el dueño o el
+            recepcionista le puede dar una respuesta certera al cliente que
+            solo está preguntando si hay lugar, sin tener que completar todo
+            el formulario "a ciegas" y terminar generando una reserva falsa. */}
+        <div className="card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <span className="text-muted" style={{ fontSize: 13, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            Disponibilidad {horaInicio}–{horaFin} {cargandoDisponibilidad && "(actualizando...)"}
           </span>
+          {tipos.length === 0 && <p className="text-muted" style={{ fontSize: 14, margin: 0 }}>Cargando tipos de cancha...</p>}
+          {tipos.map((t) => {
+            const cantidad = disponiblePorTipo.get(t.id) ?? 0;
+            const disponible = errorDisponibilidad || cantidad > 0;
+            return (
+              <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 15 }}>{t.nombre}</span>
+                <span className={`pill ${disponible ? "pill-ok" : "pill-error"}`}>
+                  {disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <span style={{ fontSize: 15, fontWeight: 600 }}>Tipo de cancha</span>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {tipos.map((t) => {
               const cantidad = disponiblePorTipo.get(t.id) ?? 0;
-              const disponible = disponibilidad.length === 0 || cantidad > 0;
+              const disponible = errorDisponibilidad || cantidad > 0;
               const activo = t.id === tipoCanchaId;
               return (
                 <button
@@ -234,12 +279,6 @@ export default function NuevaReservaPage() {
               );
             })}
           </div>
-          {disponibilidad.length > 0 &&
-            tipos.some((t) => (disponiblePorTipo.get(t.id) ?? 0) <= 0) && (
-              <p className="text-muted" style={{ fontSize: 13.5, margin: "2px 0 0 0" }}>
-                Las canchas grisadas no están disponibles: ya hay otra reserva ocupando ese horario.
-              </p>
-            )}
         </div>
 
         {tipoSeleccionado && (
@@ -264,23 +303,45 @@ export default function NuevaReservaPage() {
           />
           <input
             type="tel"
+            inputMode="numeric"
             placeholder="Teléfono"
             className="input"
             value={clienteTelefono}
-            onChange={(e) => setClienteTelefono(e.target.value)}
+            // Se guarda como string igual (puede tener 0 adelante, etc.),
+            // pero en el input solo se dejan escribir dígitos.
+            onChange={(e) => setClienteTelefono(e.target.value.replace(/\D/g, ""))}
           />
         </div>
 
         <div className="card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <label htmlFor="sena">¿Pagó seña?</label>
-            <input
-              id="sena"
-              type="checkbox"
-              checked={senaPagada}
-              onChange={(e) => setSenaPagada(e.target.checked)}
-              style={{ width: 22, height: 22, accentColor: "#E8821F" }}
-            />
+            <span style={{ fontSize: 15, fontWeight: 600 }}>¿Pagó seña?</span>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button
+                type="button"
+                onClick={() => setSenaPagada(true)}
+                className="chip"
+                style={
+                  senaPagada
+                    ? { background: "var(--accent-fill)", color: "var(--on-accent)", borderColor: "var(--accent-fill)" }
+                    : undefined
+                }
+              >
+                Sí
+              </button>
+              <button
+                type="button"
+                onClick={() => setSenaPagada(false)}
+                className="chip"
+                style={
+                  !senaPagada
+                    ? { background: "var(--accent-fill)", color: "var(--on-accent)", borderColor: "var(--accent-fill)" }
+                    : undefined
+                }
+              >
+                No
+              </button>
+            </div>
           </div>
 
           {senaPagada && (
@@ -334,7 +395,7 @@ export default function NuevaReservaPage() {
         </div>
 
         {error && (
-          <p role="alert" style={{ color: "var(--warn)", fontSize: 14 }}>
+          <p role="alert" style={{ color: "var(--error)", fontSize: 14 }}>
             {error}
           </p>
         )}
@@ -348,7 +409,7 @@ export default function NuevaReservaPage() {
             width: "100%",
             maxWidth: 480,
             background: "var(--bg)",
-            padding: "14px 20px 22px 20px",
+            padding: "14px 20px calc(22px + env(safe-area-inset-bottom)) 20px",
             borderTop: "1.5px solid var(--border)",
           }}
         >

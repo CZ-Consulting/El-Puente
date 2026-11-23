@@ -1,8 +1,18 @@
+import type { Viewport } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 export const metadata = {
   title: "Los Pinos FC · Gestión de Canchas",
+};
+
+// viewportFit: "cover" es lo que hace que env(safe-area-inset-bottom) deje
+// de valer 0 en iOS (la barra de gestos de abajo) — sin esto, el padding
+// extra que le agregamos al bottom-nav en globals.css no tiene efecto.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
