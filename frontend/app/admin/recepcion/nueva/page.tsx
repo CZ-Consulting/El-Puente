@@ -157,7 +157,7 @@ export default function NuevaReservaPage() {
         senaMonto: senaPagada && senaMonto ? Number(senaMonto) : null,
         senaMetodo: senaPagada ? senaMetodo : null,
       });
-      router.push("/admin/recepcion");
+      router.push("/admin/recepcion/visualizador");
     } catch (err) {
       // Acá puede llegar, entre otros, el mensaje de "se generó un conflicto
       // con otra reserva simultánea" de la transacción Serializable del
@@ -173,7 +173,7 @@ export default function NuevaReservaPage() {
     <div className="app-shell">
       <SectionHeader
         titulo="Nueva reserva"
-        backHref="/admin/recepcion"
+        backHref="/admin/recepcion/visualizador"
         ayuda='Elegí fecha y horario: abajo vas a ver al toque qué tipos de cancha están disponibles, antes de cargar ningún dato del cliente. Si el cliente solo está preguntando, con eso ya le podés confirmar. Para cargar la reserva, elegí el tipo de cancha disponible y completá los datos.'
       />
 

@@ -2,12 +2,13 @@
 
 // components/BottomNav.tsx
 // Nav inferior sticky, igual en las 4 "home" de cada rol y sus sub-pantallas.
-// "Cuenta" cierra sesión (en el wireframe apuntaba directo al login).
+// "Cuenta" lleva a /admin/cuenta (cambiar contraseña / cerrar sesión /
+// contactar soporte). Antes cerraba la sesión directo al tocarlo (así estaba
+// en el wireframe original), pero el cliente pidió agregarle opciones.
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 import { IconCuenta } from "./icons";
 
 export interface NavItem {
@@ -16,9 +17,10 @@ export interface NavItem {
   icon: ReactNode;
 }
 
+const CUENTA_HREF = "/admin/cuenta";
+
 export function BottomNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const { logout } = useAuth();
 
   return (
     <nav aria-label="Navegación principal" className="bottom-nav">
@@ -35,10 +37,13 @@ export function BottomNav({ items }: { items: NavItem[] }) {
           </Link>
         );
       })}
-      <button type="button" onClick={logout} className="nav-item">
+      <Link
+        href={CUENTA_HREF}
+        className={`nav-item ${pathname === CUENTA_HREF ? "nav-item-active" : ""}`}
+      >
         <IconCuenta />
         Cuenta
-      </button>
+      </Link>
     </nav>
   );
 }

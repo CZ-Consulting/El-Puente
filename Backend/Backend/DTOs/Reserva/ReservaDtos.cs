@@ -11,15 +11,15 @@ public class ReservaListadoDto
     public TimeOnly HoraFin { get; set; }
     public string? ClienteNombre { get; set; }
     public decimal PrecioTotal { get; set; }
+    public bool SenaPagada { get; set; }
+    public decimal? SenaMonto { get; set; }
+    public string? SenaMetodo { get; set; }
     public string Estado { get; set; } = string.Empty;
 }
 
 public class ReservaDetalleDto : ReservaListadoDto
 {
     public string? ClienteTelefono { get; set; }
-    public bool SenaPagada { get; set; }
-    public decimal? SenaMonto { get; set; }
-    public string? SenaMetodo { get; set; }
     public Guid? CreadoPor { get; set; }
     public DateTimeOffset CreadoEn { get; set; }
 }

@@ -86,7 +86,7 @@ export default function HomeAdminComplejoPage() {
         </div>
 
         <nav style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 4 }}>
-          <Link href="/admin/recepcion" style={{ textDecoration: "none" }}>
+          <Link href="/admin/recepcion/visualizador" style={{ textDecoration: "none" }}>
             <div
               className="card"
               style={{ padding: 17, display: "flex", justifyContent: "space-between", alignItems: "center" }}

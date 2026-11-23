@@ -7,6 +7,14 @@ public class RecaudacionPorDiaDto
     public int CantidadReservas { get; set; }
 }
 
+public class RecaudacionPorTipoCanchaDto
+{
+    public Guid TipoCanchaId { get; set; }
+    public string TipoCanchaNombre { get; set; } = string.Empty;
+    public decimal Total { get; set; }
+    public int CantidadReservas { get; set; }
+}
+
 public class RecaudacionDto
 {
     public DateOnly Desde { get; set; }
@@ -14,6 +22,7 @@ public class RecaudacionDto
     public decimal Total { get; set; }
     public int CantidadReservas { get; set; }
     public List<RecaudacionPorDiaDto> PorDia { get; set; } = new();
+    public List<RecaudacionPorTipoCanchaDto> PorTipoCancha { get; set; } = new();
 }
 
 // Vista comparativa para el SuperAdmin: recaudación de TODOS los complejos

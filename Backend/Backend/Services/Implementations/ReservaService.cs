@@ -36,6 +36,9 @@ public class ReservaService : IReservaService
                 HoraFin = r.HoraFin,
                 ClienteNombre = r.ClienteNombre,
                 PrecioTotal = r.PrecioTotal,
+                SenaPagada = r.SenaPagada,
+                SenaMonto = r.SenaMonto,
+                SenaMetodo = r.SenaMetodo,
                 Estado = r.Estado
             })
             .ToListAsync();

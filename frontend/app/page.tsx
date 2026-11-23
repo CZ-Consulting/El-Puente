@@ -8,14 +8,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, type Rol } from "@/contexts/AuthContext";
-
-const HOME_POR_ROL: Record<Rol, string> = {
-  SuperAdmin: "/admin/superadmin",
-  AdminComplejo: "/admin/complejo",
-  Recepcionista: "/admin/recepcion",
-  Preparador: "/admin/preparador",
-};
+import { useAuth } from "@/contexts/AuthContext";
+import { HOME_POR_ROL } from "@/lib/navegacionPorRol";
 
 export default function RaizPage() {
   const { usuario, cargando } = useAuth();

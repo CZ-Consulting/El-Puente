@@ -39,13 +39,26 @@ public class ReporteService : IReporteService
             .OrderBy(d => d.Fecha)
             .ToListAsync();
 
+        var porTipoCancha = await query
+            .GroupBy(r => new { r.TipoCanchaId, Nombre = r.TipoCancha!.Nombre })
+            .Select(g => new RecaudacionPorTipoCanchaDto
+            {
+                TipoCanchaId = g.Key.TipoCanchaId,
+                TipoCanchaNombre = g.Key.Nombre,
+                Total = g.Sum(r => r.PrecioTotal),
+                CantidadReservas = g.Count()
+            })
+            .OrderByDescending(d => d.Total)
+            .ToListAsync();
+
         return new RecaudacionDto
         {
             Desde = desde,
             Hasta = hasta,
             Total = porDia.Sum(d => d.Total),
             CantidadReservas = porDia.Sum(d => d.CantidadReservas),
-            PorDia = porDia
+            PorDia = porDia,
+            PorTipoCancha = porTipoCancha
         };
     }
 
