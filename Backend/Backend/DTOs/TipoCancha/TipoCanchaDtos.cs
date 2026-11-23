@@ -7,6 +7,10 @@ public class TipoCanchaListadoDto
     public int JugadoresPorEquipo { get; set; }
     public decimal PrecioPorHora { get; set; }
     public bool Activo { get; set; }
+
+    // Mismo motivo que en TerrenoListadoDto: agrupar por complejo en el
+    // front de SuperAdmin sin N+1. RLS sigue siendo el único filtro real.
+    public Guid ComplejoId { get; set; }
 }
 
 public class TipoCanchaDetalleDto

@@ -89,4 +89,50 @@ public class ConfiguracionService : IConfiguracionService
 
         return (await ObtenerPorIdAsync(configuracion.Id))!;
     }
+
+    public async Task<bool> ActualizarAsync(Guid id, ConfiguracionActualizarDto dto)
+    {
+        if (dto.Items == null || dto.Items.Count == 0)
+            throw new ArgumentException("Un caso necesita al menos un ítem (tipo de cancha + cantidad).");
+
+        var configuracion = await _db.Configuraciones
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (configuracion == null) return false;
+
+        configuracion.Nombre = dto.Nombre;
+
+        // Reemplazo total de items: se borran los existentes y se insertan
+        // los nuevos tal cual los mandó el frontend.
+        _db.ConfiguracionItems.RemoveRange(configuracion.Items);
+
+        foreach (var item in dto.Items)
+        {
+            _db.ConfiguracionItems.Add(new Models.ConfiguracionItem
+            {
+                ConfiguracionId = configuracion.Id,
+                TipoCanchaId = item.TipoCanchaId,
+                ComplejoId = configuracion.ComplejoId,
+                Cantidad = item.Cantidad
+            });
+        }
+
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> EliminarAsync(Guid id)
+    {
+        var configuracion = await _db.Configuraciones
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (configuracion == null) return false;
+
+        _db.ConfiguracionItems.RemoveRange(configuracion.Items);
+        _db.Configuraciones.Remove(configuracion);
+        await _db.SaveChangesAsync();
+        return true;
+    }
 }

@@ -24,7 +24,8 @@ public class TipoCanchaService : ITipoCanchaService
                 Nombre = t.Nombre,
                 JugadoresPorEquipo = t.JugadoresPorEquipo,
                 PrecioPorHora = t.PrecioPorHora,
-                Activo = t.Activo
+                Activo = t.Activo,
+                ComplejoId = t.ComplejoId
             })
             .ToListAsync();
     }

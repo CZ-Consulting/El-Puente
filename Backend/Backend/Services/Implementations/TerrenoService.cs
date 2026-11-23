@@ -18,7 +18,7 @@ public class TerrenoService : ITerrenoService
     {
         return await _db.Terrenos
             .OrderBy(t => t.Nombre)
-            .Select(t => new TerrenoListadoDto { Id = t.Id, Nombre = t.Nombre })
+            .Select(t => new TerrenoListadoDto { Id = t.Id, Nombre = t.Nombre, ComplejoId = t.ComplejoId })
             .ToListAsync();
     }
 

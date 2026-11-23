@@ -36,3 +36,13 @@ public class ConfiguracionCrearDto
     public Guid TerrenoId { get; set; }
     public List<ConfiguracionItemCrearDto> Items { get; set; } = new();
 }
+
+// Edición: reemplaza nombre + TODOS los items de una (borra los viejos,
+// inserta los nuevos) — más simple y seguro que un diff incremental, y
+// coincide con cómo lo arma el frontend (ajustás cantidades localmente con
+// +/- y recién mandás todo junto al tocar "Guardar").
+public class ConfiguracionActualizarDto
+{
+    public string Nombre { get; set; } = string.Empty;
+    public List<ConfiguracionItemCrearDto> Items { get; set; } = new();
+}

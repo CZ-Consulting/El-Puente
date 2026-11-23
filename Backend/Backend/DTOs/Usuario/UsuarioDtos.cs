@@ -7,6 +7,10 @@ public class UsuarioListadoDto
     public string Email { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
     public bool Activo { get; set; }
+
+    // Nullable porque un SuperAdmin no pertenece a ningún complejo.
+    // Mismo motivo que en TerrenoListadoDto/TipoCanchaListadoDto.
+    public Guid? ComplejoId { get; set; }
 }
 
 public class UsuarioDetalleDto

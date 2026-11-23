@@ -37,4 +37,20 @@ public class ConfiguracionController : ControllerBase
         var creado = await _service.CrearAsync(dto);
         return CreatedAtAction(nameof(ObtenerPorId), new { id = creado.Id }, creado);
     }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> Actualizar(Guid id, [FromBody] ConfiguracionActualizarDto dto)
+    {
+        var ok = await _service.ActualizarAsync(id, dto);
+        return ok ? NoContent() : NotFound();
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "SuperAdmin")]
+    public async Task<IActionResult> Eliminar(Guid id)
+    {
+        var ok = await _service.EliminarAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
 }

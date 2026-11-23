@@ -39,3 +39,14 @@ export function sumarHoras(
 export function horaCorta(valorBackend: string): string {
   return valorBackend.slice(0, 5);
 }
+
+/** "2026-11-20" -> "Jueves 20 de noviembre", como en el wireframe. */
+export function fechaLarga(fecha: string): string {
+  const d = new Date(`${fecha}T00:00:00`);
+  const texto = new Intl.DateTimeFormat("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(d);
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}

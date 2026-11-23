@@ -31,7 +31,8 @@ public class UsuarioService : IUsuarioService
                 Nombre = u.Nombre,
                 Email = u.Email,
                 Rol = u.Rol,
-                Activo = u.Activo
+                Activo = u.Activo,
+                ComplejoId = u.ComplejoId
             })
             .ToListAsync();
     }
