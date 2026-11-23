@@ -3,7 +3,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 export const metadata = {
-  title: "Los Pinos FC · Gestión de Canchas",
+  title: "El Puente · Gestión de Canchas",
 };
 
 // viewportFit: "cover" es lo que hace que env(safe-area-inset-bottom) deje

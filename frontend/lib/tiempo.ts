@@ -40,6 +40,15 @@ export function horaCorta(valorBackend: string): string {
   return valorBackend.slice(0, 5);
 }
 
+/** "Buenos días" / "Buenas tardes" / "Buenas noches" según la hora local del dispositivo. */
+export function saludoPorHora(): string {
+  const hora = new Date().getHours();
+  if (hora < 6) return "Buenas noches";
+  if (hora < 12) return "Buenos días";
+  if (hora < 20) return "Buenas tardes";
+  return "Buenas noches";
+}
+
 /** "2026-11-20" -> "Jueves 20 de noviembre", como en el wireframe. */
 export function fechaLarga(fecha: string): string {
   const d = new Date(`${fecha}T00:00:00`);

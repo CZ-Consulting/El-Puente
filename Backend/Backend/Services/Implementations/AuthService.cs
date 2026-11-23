@@ -170,7 +170,7 @@ public class AuthService : IAuthService
         return $"""
             <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:0;background:#0B6E4F;border-radius:20px;overflow:hidden;">
               <div style="padding:28px 28px 20px 28px;">
-                <div style="color:#F2EEE8;font-size:20px;font-weight:700;margin-bottom:18px;">Gestión de Canchas</div>
+                <div style="color:#F2EEE8;font-size:20px;font-weight:700;margin-bottom:18px;">El Puente</div>
                 <div style="background:#0A3A2A;border-radius:16px;padding:24px;color:#F2EEE8;">
                   <p style="margin:0 0 14px 0;">Hola {nombreSeguro},</p>
                   <p style="margin:0 0 14px 0;line-height:1.6;">

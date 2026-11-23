@@ -17,8 +17,8 @@ namespace Backend.Services.Implementations;
 //     "Usuario": "apikey",
 //     "Password": "...",
 //     "UsaSsl": true,
-//     "DesdeEmail": "no-responder@lospinosfc.com",
-//     "DesdeNombre": "Los Pinos FC"
+//     "DesdeEmail": "no-responder@czconsulting.com",
+//     "DesdeNombre": "El Puente"
 //   }
 public class SmtpEmailService : IEmailService
 {
@@ -54,7 +54,7 @@ public class SmtpEmailService : IEmailService
         var password = _config["Smtp:Password"];
         var desdeEmail = _config["Smtp:DesdeEmail"] ?? usuario
             ?? throw new InvalidOperationException("Falta configurar Smtp:DesdeEmail.");
-        var desdeNombre = _config["Smtp:DesdeNombre"] ?? "Gestión de Canchas";
+        var desdeNombre = _config["Smtp:DesdeNombre"] ?? "El Puente";
 
         using var mensaje = new MailMessage
         {

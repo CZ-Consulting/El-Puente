@@ -88,9 +88,9 @@ function LoginForm() {
               <path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke="var(--on-accent)" strokeWidth="1.6" />
             </svg>
           </div>
-          <h1 style={{ fontSize: 32, margin: "8px 0 0 0" }}>Gestión de Canchas</h1>
-          <p className="text-muted" style={{ margin: 0, fontSize: 17 }}>
-            Iniciá sesión para continuar
+          <h1 style={{ fontSize: 32, margin: "8px 0 0 0", textAlign: "center" }}>Bienvenidos a El Puente</h1>
+          <p className="text-muted" style={{ margin: 0, fontSize: 17, textAlign: "center" }}>
+            Tu mejor opción para gestionar tu complejo deportivo
           </p>
         </div>
 
@@ -139,6 +139,13 @@ function LoginForm() {
             ¿Olvidaste tu contraseña?
           </Link>
         </form>
+
+        <p
+          className="text-muted"
+          style={{ textAlign: "center", fontSize: 11.5, opacity: 0.6, margin: "36px 0 0 0" }}
+        >
+          Desarrollado y mantenido por CZ Consulting
+        </p>
       </div>
     </div>
   );

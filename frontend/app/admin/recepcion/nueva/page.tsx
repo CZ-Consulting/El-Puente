@@ -107,7 +107,10 @@ export default function NuevaReservaPage() {
   const horas = useMemo(() => {
     const [hi, mi] = horaInicio.split(":").map(Number);
     const [hf, mf] = horaFin.split(":").map(Number);
-    const diff = hf * 60 + mf - (hi * 60 + mi);
+    let diff = hf * 60 + mf - (hi * 60 + mi);
+    // "Hasta" puede cruzar medianoche (ej. 23:00 a 00:00): si da negativo,
+    // es que "Hasta" cae al día siguiente, no que el rango sea inválido.
+    if (diff < 0) diff += 24 * 60;
     return diff > 0 ? diff / 60 : 0;
   }, [horaInicio, horaFin]);
 
@@ -140,6 +143,10 @@ export default function NuevaReservaPage() {
     }
     if (horas <= 0) {
       setError("La hora de fin debe ser posterior a la de inicio.");
+      return;
+    }
+    if (senaPagada && !(Number(senaMonto) > 0)) {
+      setError("Ingresá el monto de la seña pagada.");
       return;
     }
 
@@ -353,7 +360,9 @@ export default function NuevaReservaPage() {
                 <input
                   id="monto"
                   type="number"
-                  min="0"
+                  min="0.01"
+                  step="0.01"
+                  required={senaPagada}
                   className="input"
                   value={senaMonto}
                   onChange={(e) => setSenaMonto(e.target.value)}

@@ -73,7 +73,14 @@ public class ReservaService : IReservaService
 
     public async Task<ReservaDetalleDto> CrearAsync(ReservaCrearDto dto)
     {
-        if (dto.HoraFin <= dto.HoraInicio)
+        // "HoraFin" puede valer 00:00:00 cuando la reserva cruza la
+        // medianoche (ej. 23:00 a 00:00): como TimeOnly no tiene un "24:00",
+        // ese 00:00:00 hay que interpretarlo como fin del día, no como
+        // "antes que cualquier otra hora" -- si no, se rechaza como inválida
+        // una reserva perfectamente válida en el último turno del día.
+        var horaInicioMin = MinutosDesdeMedianoche(dto.HoraInicio);
+        var horaFinMin = MinutosFinDia(dto.HoraFin, dto.HoraInicio);
+        if (horaFinMin <= horaInicioMin)
             throw new ArgumentException("La hora de fin debe ser posterior a la hora de inicio.");
 
         // ---- Concurrencia: dos recepcionistas pueden intentar reservar el ----
@@ -117,7 +124,7 @@ public class ReservaService : IReservaService
 
                 // Precio SIEMPRE calculado en el backend, nunca confiar en un total
                 // que mande el cliente.
-                var horas = (decimal)(dto.HoraFin - dto.HoraInicio).TotalHours;
+                var horas = (decimal)(horaFinMin - horaInicioMin) / 60m;
                 var precioTotal = tipoCancha.PrecioPorHora * horas;
 
                 var reserva = new Reserva
@@ -225,18 +232,44 @@ public class ReservaService : IReservaService
     private async Task<Dictionary<Guid, int>> ObtenerAcumuladoAsync(
         Guid terrenoId, DateOnly fecha, TimeOnly horaInicio, TimeOnly horaFin)
     {
-        // Overlap clásico de intervalos: existente.Inicio < nuevo.Fin Y nuevo.Inicio < existente.Fin
-        var solapadas = await _db.Reservas
-            .Where(r => r.TerrenoId == terrenoId
-                     && r.Fecha == fecha
-                     && r.Estado == "confirmada"
-                     && r.HoraInicio < horaFin
-                     && horaInicio < r.HoraFin)
-            .GroupBy(r => r.TipoCanchaId)
-            .Select(g => new { TipoCanchaId = g.Key, Cantidad = g.Count() })
+        // Traemos las reservas confirmadas del terreno para ese día (el
+        // volumen por día es chico) y resolvemos el solapamiento acá en vez
+        // de en la consulta SQL, porque "HoraFin" puede valer 00:00:00 para
+        // una reserva que cruza la medianoche (ej. 23:00 a 00:00) -- ese
+        // 00:00:00 significa "fin del día", no "antes de cualquier otra
+        // hora", y comparar eso directo como TimeOnly en SQL hace que el
+        // solapamiento se "pierda" justo en el último turno del día
+        // (permitiría doble-reservar ese horario).
+        var reservasDelDia = await _db.Reservas
+            .Where(r => r.TerrenoId == terrenoId && r.Fecha == fecha && r.Estado == "confirmada")
+            .Select(r => new { r.TipoCanchaId, r.HoraInicio, r.HoraFin })
             .ToListAsync();
 
-        return solapadas.ToDictionary(x => x.TipoCanchaId, x => x.Cantidad);
+        var inicioMin = MinutosDesdeMedianoche(horaInicio);
+        var finMin = MinutosFinDia(horaFin, horaInicio);
+
+        return reservasDelDia
+            .Where(r =>
+            {
+                var rInicioMin = MinutosDesdeMedianoche(r.HoraInicio);
+                var rFinMin = MinutosFinDia(r.HoraFin, r.HoraInicio);
+                // Overlap clásico de intervalos: existente.Inicio < nuevo.Fin Y nuevo.Inicio < existente.Fin
+                return rInicioMin < finMin && inicioMin < rFinMin;
+            })
+            .GroupBy(r => r.TipoCanchaId)
+            .ToDictionary(g => g.Key, g => g.Count());
+    }
+
+    private static int MinutosDesdeMedianoche(TimeOnly hora) => hora.Hour * 60 + hora.Minute;
+
+    // Si "fin" queda en o antes de "inicio" es porque cruza la medianoche
+    // (ej. 23:00 a 00:00): se interpreta como fin del día (24:00 = 1440
+    // minutos) en vez de como 00:00 literal.
+    private static int MinutosFinDia(TimeOnly fin, TimeOnly inicio)
+    {
+        var finMin = MinutosDesdeMedianoche(fin);
+        var inicioMin = MinutosDesdeMedianoche(inicio);
+        return finMin <= inicioMin ? 1440 : finMin;
     }
 
     private async Task<List<Configuracion>> ObtenerConfiguracionesConItemsAsync(Guid terrenoId)

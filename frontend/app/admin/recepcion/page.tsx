@@ -13,6 +13,7 @@
 
 import Link from "next/link";
 import { iniciales } from "@/lib/texto";
+import { saludoPorHora } from "@/lib/tiempo";
 import { useAuth } from "@/contexts/AuthContext";
 import { IdentityHeader } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
@@ -34,7 +35,9 @@ export default function BienvenidaRecepcionPage() {
       />
 
       <main className="app-main">
-        <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>Hola, {usuario.nombre.split(" ")[0]}</h1>
+        <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>
+          {saludoPorHora()}, {usuario.nombre.split(" ")[0]}
+        </h1>
         <p className="text-muted" style={{ margin: 0, fontSize: 15 }}>
           ¿Qué querés hacer?
         </p>

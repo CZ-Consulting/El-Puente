@@ -9,6 +9,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
+import { saludoPorHora } from "@/lib/tiempo";
+import { useAuth } from "@/contexts/AuthContext";
 import { IdentityHeader } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { IconInicio, IconConfiguracion } from "@/components/icons";
@@ -39,6 +41,7 @@ function primerDiaMesActual(): string {
 }
 
 export default function HomeSuperAdminPage() {
+  const { usuario } = useAuth();
   const [complejos, setComplejos] = useState<ComplejoListadoDto[]>([]);
   const [usuarios, setUsuarios] = useState<UsuarioListadoDto[]>([]);
   const [terrenos, setTerrenos] = useState<TerrenoListadoDto[]>([]);
@@ -109,6 +112,11 @@ export default function HomeSuperAdminPage() {
       />
 
       <main className="app-main">
+        {usuario && (
+          <p className="text-muted" style={{ margin: 0, fontSize: 15 }}>
+            {saludoPorHora()}, {usuario.nombre.split(" ")[0]}
+          </p>
+        )}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>Complejos</h1>
           <button
@@ -139,14 +147,14 @@ export default function HomeSuperAdminPage() {
               onChange={(e) => setNombreNuevo(e.target.value)}
               placeholder="Ej: Complejo Demo FC"
             />
-            {errorForm && <p style={{ color: "var(--warn)", fontSize: 13.5, margin: 0 }}>{errorForm}</p>}
+            {errorForm && <p style={{ color: "var(--error)", fontSize: 13.5, margin: 0 }}>{errorForm}</p>}
             <button type="button" className="btn-primary" disabled={guardando} onClick={crearComplejo}>
               {guardando ? "Creando..." : "Crear complejo"}
             </button>
           </div>
         )}
 
-        {error && <p style={{ color: "var(--warn)" }}>{error}</p>}
+        {error && <p style={{ color: "var(--error)" }}>{error}</p>}
 
         {complejos.length === 0 && !error && (
           <p className="text-muted">Todavía no hay complejos creados.</p>

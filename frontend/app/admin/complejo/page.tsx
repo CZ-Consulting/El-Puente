@@ -11,7 +11,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { fechaHoyLocal } from "@/lib/tiempo";
+import { fechaHoyLocal, saludoPorHora } from "@/lib/tiempo";
 import { formatoMoneda } from "@/lib/texto";
 import { iniciales } from "@/lib/texto";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,7 +62,12 @@ export default function HomeAdminComplejoPage() {
       />
 
       <main className="app-main">
-        <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>Hoy, de un vistazo</h1>
+        <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>
+          {saludoPorHora()}, {usuario.nombre.split(" ")[0]}
+        </h1>
+        <p className="text-muted" style={{ margin: 0, fontSize: 15 }}>
+          Hoy, de un vistazo
+        </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="card">
