@@ -111,7 +111,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// "UseHttpsRedirection" solo tiene sentido cuando ESTE proceso es el que
+// termina TLS (como en local, con Kestrel sirviendo https://localhost:7033
+// directo). En Render (y en cualquier hosting detrás de un proxy/balanceador)
+// el TLS lo termina el proxy del hosting: a este contenedor el tráfico le
+// llega siempre por HTTP plano, aunque el visitante haya entrado por https.
+// Sin este guard, Kestrel ve cada request como "http" y la redirige de
+// nuevo a "https" -- un 307 que, en un POST/PUT (crear una reserva, cambiar
+// un precio, etc.), muchos clientes HTTP no reenvían correctamente, así que
+// esas operaciones se rompen silenciosamente recién al desplegar. En
+// Development no hay proxy de por medio, así que ahí sí corresponde.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapControllers();
 
