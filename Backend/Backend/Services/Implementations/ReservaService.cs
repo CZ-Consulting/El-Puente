@@ -83,6 +83,9 @@ public class ReservaService : IReservaService
         if (horaFinMin <= horaInicioMin)
             throw new ArgumentException("La hora de fin debe ser posterior a la hora de inicio.");
 
+        if (dto.SenaPagada && (!dto.SenaMonto.HasValue || dto.SenaMonto.Value <= 0))
+            throw new ArgumentException("Si la seña está pagada, el monto es requerido.");
+
         // ---- Concurrencia: dos recepcionistas pueden intentar reservar el ----
         // mismo horario casi al mismo tiempo. El check de disponibilidad y el
         // insert se ejecutan dentro de una transacción SERIALIZABLE: si Postgres

@@ -89,3 +89,13 @@ export function IconFlechaIzquierda() {
     </svg>
   );
 }
+
+export function IconCalendario() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="16" rx="3" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M3.5 9.5h17" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M8 3v3.2M16 3v3.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}

@@ -17,11 +17,20 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api";
-import { fechaHoyLocal, fechaLarga, horaActualRedondeada, horaCorta, sumarHoras } from "@/lib/tiempo";
+import {
+  fechaHoyLocal,
+  fechaLarga,
+  horaActualRedondeada,
+  horaCorta,
+  minutosDesdeMedianoche,
+  minutosFinDia,
+  sumarHoras,
+} from "@/lib/tiempo";
 import { iniciales, formatoMoneda } from "@/lib/texto";
 import { useAuth } from "@/contexts/AuthContext";
 import { IdentityHeader } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
+import { SelectorFecha } from "@/components/SelectorFecha";
 import { SUBTITULO_POR_ROL, navItemsPorRol } from "@/lib/navegacionPorRol";
 import { IconFlechaIzquierda, IconFlechaDerecha, IconMas } from "@/components/icons";
 
@@ -95,12 +104,16 @@ export default function VisualizadorRecepcionPage() {
         }),
       ]);
 
-      const enVentana = reservasDelDia.filter(
-        (r) =>
-          r.estado === "confirmada" &&
-          horaCorta(r.horaInicio) < horaFin &&
-          horaInicio < horaCorta(r.horaFin),
-      );
+      const ventanaInicioMin = minutosDesdeMedianoche(horaInicio);
+      const ventanaFinMin = minutosFinDia(horaFin, horaInicio);
+      const enVentana = reservasDelDia.filter((r) => {
+        if (r.estado !== "confirmada") return false;
+        const rInicio = horaCorta(r.horaInicio);
+        const rFin = horaCorta(r.horaFin);
+        const rInicioMin = minutosDesdeMedianoche(rInicio);
+        const rFinMin = minutosFinDia(rFin, rInicio);
+        return rInicioMin < ventanaFinMin && ventanaInicioMin < rFinMin;
+      });
 
       setOcupadas(enVentana);
       setDisponibles(disponibilidad);
@@ -162,7 +175,10 @@ export default function VisualizadorRecepcionPage() {
       />
 
       <main className="app-main">
-        <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>Visualizador de canchas</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1 style={{ fontSize: 26, margin: "4px 0 0 0" }}>Visualizador de canchas</h1>
+          <SelectorFecha fecha={fecha} onChange={setFecha} />
+        </div>
 
         {terrenos.length > 1 && (
           <select className="input" value={terrenoId} onChange={(e) => setTerrenoId(e.target.value)}>

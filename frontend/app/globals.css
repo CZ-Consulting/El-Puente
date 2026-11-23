@@ -274,6 +274,23 @@ button {
   color: var(--ink-muted);
 }
 
+/* Los inputs nativos de fecha/hora dibujan su icono de calendario/reloj en
+   negro por defecto, sin importar el "color" del input -- sobre el fondo
+   oscuro de las cards quedaba prácticamente invisible. "color-scheme: dark"
+   le avisa al navegador que dibuje los controles nativos (icono incluido)
+   en tonos claros; el filtro de abajo es el refuerzo para Chrome/Edge/Safari
+   (WebKit), que son los que de verdad customizan ese ícono. */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.6);
+  cursor: pointer;
+}
+
 label {
   font-size: 15px;
   font-weight: 600;

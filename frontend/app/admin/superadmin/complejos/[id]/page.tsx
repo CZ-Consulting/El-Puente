@@ -6,11 +6,12 @@
 // las señas de los clientes finales — eso es la tabla "reserva").
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { SectionHeader } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
-import { IconInicio, IconConfiguracion } from "@/components/icons";
+import { IconInicio, IconConfiguracion, IconFlechaDerecha } from "@/components/icons";
 function periodoLegible(periodoISO: string): string {
   const d = new Date(`${periodoISO}T00:00:00`);
   const texto = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
@@ -166,7 +167,7 @@ export default function ComplejoDetallePage() {
   }
 
   if (cargando) return <p className="cargando">Cargando...</p>;
-  if (error) return <p className="cargando" style={{ color: "var(--warn)" }}>{error}</p>;
+  if (error) return <p className="cargando" style={{ color: "var(--error)" }}>{error}</p>;
 
   const complejoActual = complejos.find((c) => c.id === id);
   const periodoActual = primerDiaMesActual();
@@ -208,6 +209,18 @@ export default function ComplejoDetallePage() {
               <span className={`pill ${alDia ? "pill-ok" : "pill-warn"}`}>{alDia ? "AL DÍA" : "ATRASADO"}</span>
             </div>
 
+            <Link href={`/admin/superadmin/complejos/${id}/dashboard`} style={{ textDecoration: "none" }}>
+              <div
+                className="card"
+                style={{ padding: 17, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span style={{ fontWeight: 600, fontSize: 15.5, color: "var(--ink)" }}>Ver dashboard operativo</span>
+                <span className="text-muted">
+                  <IconFlechaDerecha />
+                </span>
+              </div>
+            </Link>
+
             <section style={{ display: "flex", flexDirection: "column", gap: 11 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 4px" }}>
                 <span style={{ fontWeight: 700, fontSize: 16 }}>Usuarios</span>
@@ -230,7 +243,7 @@ export default function ComplejoDetallePage() {
                     <option value="Recepcionista">Recepcionista</option>
                     <option value="Preparador">Preparador</option>
                   </select>
-                  {errorUsuario && <p style={{ color: "var(--warn)", fontSize: 13.5, margin: 0 }}>{errorUsuario}</p>}
+                  {errorUsuario && <p style={{ color: "var(--error)", fontSize: 13.5, margin: 0 }}>{errorUsuario}</p>}
                   <button type="button" className="btn-primary" disabled={guardandoUsuario} onClick={crearUsuario}>
                     {guardandoUsuario ? "Creando..." : "Crear usuario"}
                   </button>
@@ -278,7 +291,7 @@ export default function ComplejoDetallePage() {
                 <div style={{ fontSize: 15, fontWeight: 600 }}>Pagado.</div>
               ) : (
                 <>
-                  {errorPago && <p style={{ color: "var(--warn)", fontSize: 13.5, margin: 0 }}>{errorPago}</p>}
+                  {errorPago && <p style={{ color: "var(--error)", fontSize: 13.5, margin: 0 }}>{errorPago}</p>}
                   <button
                     type="button"
                     disabled={marcandoPago}

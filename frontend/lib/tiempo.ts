@@ -40,6 +40,26 @@ export function horaCorta(valorBackend: string): string {
   return valorBackend.slice(0, 5);
 }
 
+/** "HH:mm" -> minutos desde las 00:00 de ese mismo día. */
+export function minutosDesdeMedianoche(horaHHmm: string): number {
+  const [h, m] = horaHHmm.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// Comparar horarios como texto (o incluso como minutos "a secas") se rompe
+// justo en el último turno del día: un rango que termina a la medianoche
+// (ej. 23:00 a 00:00) guarda "00:00" como hora_fin, y "00:00" siempre da
+// MENOR que cualquier otra hora del mismo día -- nunca mayor -- porque no
+// existe un "24:00". Si "fin" queda en o antes de "inicio" es justamente
+// por eso: hay que interpretarlo como fin del día (24:00 = 1440 minutos),
+// no como las 00:00 literales. Misma regla que en el backend
+// (ReservaService.MinutosFinDia) para que ambos lados coincidan.
+export function minutosFinDia(finHHmm: string, inicioHHmm: string): number {
+  const finMin = minutosDesdeMedianoche(finHHmm);
+  const inicioMin = minutosDesdeMedianoche(inicioHHmm);
+  return finMin <= inicioMin ? 1440 : finMin;
+}
+
 /** "Buenos días" / "Buenas tardes" / "Buenas noches" según la hora local del dispositivo. */
 export function saludoPorHora(): string {
   const hora = new Date().getHours();
